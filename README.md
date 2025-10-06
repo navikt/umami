@@ -5,6 +5,9 @@ Umami er et åpent kildekode produktanalyseverktøy som brukes til å spore og a
 
 ---
 
+> [!WARNING]
+> Utvikling foregår i [umami-dev](https://github.com/navikt/umami-dev), deretter merges det inn hit for å holde prod og dev i synk.
+
 # Henvendelser om Umami
 
 Du kan sende spørsmål på e-post til [researchops@nav.no](mailto:researchops@nav.no).
