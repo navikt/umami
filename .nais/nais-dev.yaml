@@ -3,20 +3,22 @@ kind: Application
 metadata:
   annotations:
     nais.io/read-only-file-system: "false"
-  name: reops-umami-beta
+  name: umami-dev
   namespace: team-researchops
   labels:
     team: team-researchops
 spec:
   image: {{ image }}
   valkey:
-  - instance: sessions
-    access: readwrite
-  - instance: reops-umami-beta
-    access: readwrite
-  - instance: lookup
-    access: read
+    - instance: sessions
+      access: readwrite
+    - instance: umami-dev
+      access: readwrite
+    - instance: lookup
+      access: read
   env:
+    - name: "RUN_SCRIPT"
+      value: "run-dev.sh"
     - name: "DATABASE_TYPE"
       value: "postgresql"
     - name: "FORCE_SSL"
@@ -29,29 +31,26 @@ spec:
       value: "1"
   accessPolicy:
     inbound:
-      rules:
-        - application: reops-felgen
-        - application: reops-proxy
+      ruls:
         - application: umami-proxy
   gcp:
     sqlInstances:
       - type: POSTGRES_17
-        tier: db-custom-24-22272
+        tier: db-f1-micro
         flags:
           - name: cloudsql.logical_decoding
             value: "on"
         databases:
-          - name: reops-umami-beta
+          - name: umami-dev
             users:
               - name: datastream
         diskAutoresize: true
   ingresses:
-    - "https://umami.ansatt.nav.no"
-    - "https://umami.intern.nav.no"
+    - "https://umami-dev.ansatt.nav.no"
   resources:
     requests:
-      cpu: "800m"
-      memory: "512Mi"
+      cpu: "200m"
+      memory: "256Mi"
   liveness:
     path: "/login"
     port: 3000
@@ -60,6 +59,6 @@ spec:
     port: 3000
   replicas:
     cpuThresholdPercentage: 50
-    max: 8
-    min: 2
+    max: 2
+    min: 1
   port: 3000
