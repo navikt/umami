@@ -49,8 +49,8 @@ spec:
     - "https://umami-dev.ansatt.nav.no"
   resources:
     requests:
-      cpu: "200m"
-      memory: "256Mi"
+      cpu: "600m"
+      memory: "512Mi"
   liveness:
     path: "/login"
     port: 3000
