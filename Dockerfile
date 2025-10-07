@@ -20,11 +20,12 @@ RUN mkdir -p /app/node_modules/.pnpm/@prisma+engines@6.7.0/node_modules/@prisma/
 RUN mkdir -p /app/.next && \
     chmod -R 777 /app/.next
 
-# Copy the run.sh script and set permissions
+# Copy all run scripts and set permissions
 COPY run.sh /app/run.sh
-RUN chmod +x /app/run.sh
+COPY run-dev.sh /app/run-dev.sh
+RUN chmod +x /app/run.sh /app/run-dev.sh
 
 EXPOSE 3000
 
-# Run the run.sh script as root
-CMD ["/app/run.sh"]
+# Use environment variable to determine which script to run (default to run.sh for backward compatibility)
+CMD ["/bin/bash", "-c", "/app/${RUN_SCRIPT:-run.sh}"]
