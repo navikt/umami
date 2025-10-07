@@ -8,7 +8,7 @@ metadata:
   labels:
     team: team-researchops
 spec:
-  image: { { image } }
+  image: {{ image }}
   valkey:
     - instance: sessions
       access: readwrite
