@@ -61,7 +61,7 @@ else
 fi
 
 # Debug statement to print the DATABASE_URL
-# echo "DATABASE_URL: $DATABASE_URL"
+echo "DATABASE_URL: $DATABASE_URL"
 
 
 if [ $PRISMA_EXIT_CODE -ne 0 ]; then
