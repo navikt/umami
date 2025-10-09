@@ -28,9 +28,9 @@ spec:
     - name: "LOG_QUERY"
       value: "0"
     - name: "SKIP_DB_CHECK"
-      value: "0"
+      value: "1"
     - name: "SKIP_DB_MIGRATION"
-      value: "0"
+      value: "1"
   accessPolicy:
     inbound:
       rules:

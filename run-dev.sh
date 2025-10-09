@@ -63,8 +63,8 @@ fi
 # Debug statement to print the DATABASE_URL
 echo "DATABASE_URL: $DATABASE_URL"
 
-
-if [ "$PRISMA_EXIT_CODE" -ne "0" ]; then
+PRISMA_EXIT_CODE="${PRISMA_EXIT_CODE:-0}"
+if [ "$PRISMA_EXIT_CODE" -ne 0 ]; then
   echo "Failed to connect to the database. See /tmp/prisma_output.log for details." >> /tmp/run_error.log
 else
   echo "Successfully pushed Prisma schema to the database." >> /tmp/prisma_output.log
