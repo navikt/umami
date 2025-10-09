@@ -51,7 +51,7 @@ if [ ! -f "/tmp/client-identity.p12" ]; then
 fi
 
 # Set the DATABASE_URL environment variable
-export DATABASE_URL="postgresql://$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_USERNAME:$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PASSWORD@$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_HOST:$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PORT/umami-dev?sslidentity=/tmp/client-identity.p12&sslpassword=$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PASSWORD&sslcert=$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLROOTCERT" || echo "Failed to set DATABASE_URL" >> /tmp/run_error.log
+export DATABASE_URL="postgresql://$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_USERNAME:$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PASSWORD@$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_HOST:$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PORT/umami-one?sslidentity=/tmp/client-identity.p12&sslpassword=$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PASSWORD&sslcert=$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLROOTCERT" || echo "Failed to set DATABASE_URL" >> /tmp/run_error.log
 
 # Export REDIS_URL for the REDIS instance using the URI and credentials
 #if [[ -n "$REDIS_USERNAME_UMAMI_DEV" && -n "$REDIS_PASSWORD_UMAMI_DEV" ]]; then
