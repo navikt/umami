@@ -10,12 +10,8 @@ metadata:
 spec:
   image: {{ image }}
   valkey:
-    - instance: sessions
-      access: readwrite
     - instance: umami-dev
       access: readwrite
-    - instance: lookup
-      access: read
   env:
     - name: "RUN_SCRIPT"
       value: "run-dev.sh"
@@ -28,7 +24,7 @@ spec:
     - name: "LOG_QUERY"
       value: "0"
     - name: "SKIP_DB_CHECK"
-      value: "1"
+      value: "0"
     - name: "SKIP_DB_MIGRATION"
       value: "1"
   accessPolicy:
