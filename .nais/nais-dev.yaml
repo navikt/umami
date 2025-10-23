@@ -30,7 +30,7 @@ spec:
   accessPolicy:
     inbound:
       rules:
-        - application: umami-proxy
+        - application: umami-proxy-dev
   gcp:
     sqlInstances:
       - type: POSTGRES_17
