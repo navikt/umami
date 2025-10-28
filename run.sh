@@ -60,10 +60,6 @@ else
   export REDIS_URL="$REDIS_URI_REOPS_UMAMI_BETA"
 fi
 
-# Debug statement to print the DATABASE_URL
-# echo "DATABASE_URL: $DATABASE_URL"
-
-
 if [ $PRISMA_EXIT_CODE -ne 0 ]; then
   echo "Failed to connect to the database. See /tmp/prisma_output.log for details." >> /tmp/run_error.log
 else
