@@ -45,10 +45,6 @@ echo "Combined certificate file created at /tmp/client-cert-full.pem"
 
 echo ""
 echo "=== Testing SSL connection to database ==="
-
-echo ""
-echo "=== Testing SSL connection to database ==="
-
 # Check the SSL connection to the database - this validates the server cert works
 openssl s_client -connect $NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_HOST:$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PORT \
   -CAfile $NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLROOTCERT \
@@ -82,9 +78,9 @@ if [ ! -f "/tmp/client-cert-full.pem" ]; then
 fi
 
 # Set the DATABASE_URL environment variable
-# Prisma v6+ uses different SSL parameter names: sslmode, sslcert, sslkey, sslrootcert
-# Using the combined certificate file that includes the full chain
-export DATABASE_URL="postgresql://$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_USERNAME:$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PASSWORD@$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_HOST:$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PORT/umami-dev?sslmode=require&sslcert=/tmp/client-cert-full.pem&sslkey=$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLKEY&sslrootcert=$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLROOTCERT"
+# Prisma v6+ uses standard PostgreSQL SSL parameters
+# Try using the original cert file directly (not combined) as Prisma may handle the chain internally
+export DATABASE_URL="postgresql://$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_USERNAME:$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PASSWORD@$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_HOST:$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PORT/umami-dev?sslmode=require&sslcert=$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLCERT&sslkey=$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLKEY&sslrootcert=$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLROOTCERT"
 
 # Export REDIS_URL for the REDIS instance using the URI and credentials
 if [[ -n "$REDIS_USERNAME_UMAMI_DEV" && -n "$REDIS_PASSWORD_UMAMI_DEV" ]]; then
