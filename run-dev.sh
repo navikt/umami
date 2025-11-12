@@ -66,6 +66,10 @@ fi
 
 if [ "$DB_SERVER_NAME" != "$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_HOST" ]; then
   CONNECTION_SSLMODE="verify-full"
+  if ! grep -q "$DB_SERVER_NAME" /etc/hosts; then
+    echo "Adding $DB_SERVER_NAME to /etc/hosts mapped to $NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_HOST"
+    echo "$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_HOST $DB_SERVER_NAME" >> /etc/hosts
+  fi
 else
   CONNECTION_SSLMODE="require"
 fi
