@@ -50,18 +50,18 @@ jobs:
           RESOURCE: .nais/nais-dev.yaml
           VAR: image=${{ needs.build.outputs.image }},version=${{ github.sha }}
 
-  deploy-prod:
-    if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'prod'
-    needs: build
-    runs-on: "ubuntu-latest"
-    permissions:
-      contents: read
-      id-token: write
-    steps:
-      - uses: "actions/checkout@v4"
-      - name: "Deploy to Prod"
-        uses: "nais/deploy/actions/deploy@v2"
-        env:
-          CLUSTER: "prod-gcp"
-          RESOURCE: .nais/nais-prod.yaml
-          VAR: image=${{ needs.build.outputs.image }},version=${{ github.sha }}
+#  deploy-prod:
+#    if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'prod'
+#    needs: build
+#    runs-on: "ubuntu-latest"
+#    permissions:
+#      contents: read
+#      id-token: write
+#    steps:
+#      - uses: "actions/checkout@v4"
+#      - name: "Deploy to Prod"
+#        uses: "nais/deploy/actions/deploy@v2"
+#        env:
+#          CLUSTER: "prod-gcp"
+#          RESOURCE: .nais/nais-prod.yaml
+#          VAR: image=${{ needs.build.outputs.image }},version=${{ github.sha }}
