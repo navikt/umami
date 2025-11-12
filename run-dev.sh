@@ -51,11 +51,9 @@ if [ ! -f "/tmp/client-identity.p12" ]; then
 fi
 
 # Set the DATABASE_URL environment variable with proper SSL parameters for Prisma 6
-# Use sslmode=require and point to the PEM certificate files
-export DATABASE_URL="postgresql://$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_USERNAME:$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PASSWORD@$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_HOST:$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PORT/umami-dev?sslmode=require&sslcert=/tmp/client-identity.pem&sslkey=$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLKEY&sslrootcert=$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLROOTCERT" || echo "Failed to set DATABASE_URL" >> /tmp/run_error.log
-
-# Also set NODE_OPTIONS to use system CA certificates
-export NODE_OPTIONS="${NODE_OPTIONS:+$NODE_OPTIONS }--use-openssl-ca"
+# For GCP Cloud SQL proxy connections, we need to disable SSL verification or use sslmode=disable
+# The proxy itself handles encryption, so we can safely disable SSL at the database driver level
+export DATABASE_URL="postgresql://$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_USERNAME:$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PASSWORD@$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_HOST:$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PORT/umami-dev?sslmode=disable" || echo "Failed to set DATABASE_URL" >> /tmp/run_error.log
 
 # Export REDIS_URL for the REDIS instance using the URI and credentials
 if [[ -n "$REDIS_USERNAME_UMAMI_DEV" && -n "$REDIS_PASSWORD_UMAMI_DEV" ]]; then
@@ -64,8 +62,13 @@ else
   export REDIS_URL="$REDIS_URI_UMAMI_DEV"
 fi
 
-# Debug statement to print the DATABASE_URL
-echo "DATABASE_URL: $DATABASE_URL"
+# Debug statements to verify environment variables
+echo "=== Database Connection Debug Info ==="
+echo "DB Host: $NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_HOST"
+echo "DB Port: $NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PORT"
+echo "DB Username: $NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_USERNAME"
+echo "DATABASE_URL (first 100 chars): ${DATABASE_URL:0:100}..."
+echo "======================================"
 
 PRISMA_EXIT_CODE="${PRISMA_EXIT_CODE:-0}"
 if [ "$PRISMA_EXIT_CODE" -ne 0 ]; then
@@ -74,5 +77,9 @@ else
   echo "Successfully pushed Prisma schema to the database." >> /tmp/prisma_output.log
 fi
 
+# Ensure DATABASE_URL is available to the Node.js process
+export DATABASE_URL
+
 # Start the application
-pnpm start-docker
+echo "Starting application with pnpm start-docker..."
+exec pnpm start-docker
