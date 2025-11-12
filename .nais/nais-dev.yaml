@@ -26,7 +26,7 @@ spec:
     - name: "SKIP_DB_CHECK"
       value: "0"
     - name: "SKIP_DB_MIGRATION"
-      value: "1"
+      value: "0"
   accessPolicy:
     inbound:
       rules:
