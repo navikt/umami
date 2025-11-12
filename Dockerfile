@@ -40,7 +40,6 @@ ENV NEXT_TELEMETRY_DISABLED=1
 # Set Node options to limit memory usage
 ENV NODE_OPTIONS="--max-old-space-size=3072"
 
-# Install pnpm and run build with standard webpack (not turbo)
 RUN npm install -g pnpm && \
     pnpm run build-docker
 
