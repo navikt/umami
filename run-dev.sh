@@ -64,14 +64,22 @@ else
   echo "Warning: Could not detect server name from certificate. Using host: $DB_SERVER_NAME"
 fi
 
+CONNECTION_SSLMODE="require"
 if [ "$DB_SERVER_NAME" != "$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_HOST" ]; then
-  CONNECTION_SSLMODE="verify-full"
   if ! grep -q "$DB_SERVER_NAME" /etc/hosts; then
-    echo "Adding $DB_SERVER_NAME to /etc/hosts mapped to $NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_HOST"
-    echo "$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_HOST $DB_SERVER_NAME" >> /etc/hosts
+    if echo "Attempting to map $DB_SERVER_NAME to $NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_HOST in /etc/hosts"; then
+      if echo "$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_HOST $DB_SERVER_NAME" | tee -a /etc/hosts >/dev/null 2>&1; then
+        echo "Added $DB_SERVER_NAME to /etc/hosts"
+        CONNECTION_SSLMODE="verify-full"
+      else
+        echo "Warning: Unable to write to /etc/hosts. Falling back to sslmode=verify-ca with direct IP"
+        DB_SERVER_NAME="$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_HOST"
+        CONNECTION_SSLMODE="verify-ca"
+      fi
+    fi
+  else
+    CONNECTION_SSLMODE="verify-full"
   fi
-else
-  CONNECTION_SSLMODE="require"
 fi
 
 echo ""
