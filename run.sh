@@ -67,4 +67,4 @@ else
 fi
 
 # Start the application
-yarn start-docker
+pnpm start-docker
