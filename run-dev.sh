@@ -79,8 +79,16 @@ fi
 
 # Set the DATABASE_URL environment variable
 # Prisma v6+ uses standard PostgreSQL SSL parameters
-# Try using the original cert file directly (not combined) as Prisma may handle the chain internally
+# Using original NAIS certificate files directly
 export DATABASE_URL="postgresql://$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_USERNAME:$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PASSWORD@$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_HOST:$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PORT/umami-dev?sslmode=require&sslcert=$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLCERT&sslkey=$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLKEY&sslrootcert=$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLROOTCERT"
+
+# Test the connection with psql to verify SSL auth works
+echo ""
+echo "=== Testing PostgreSQL connection with psql ==="
+PGPASSWORD="$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PASSWORD" psql \
+  "sslmode=require sslcert=$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLCERT sslkey=$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLKEY sslrootcert=$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLROOTCERT host=$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_HOST port=$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PORT dbname=umami-dev user=$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_USERNAME" \
+  -c "SELECT version();" 2>&1 | head -5 || echo "Note: psql test failed, but Prisma might still work"
+echo ""
 
 # Export REDIS_URL for the REDIS instance using the URI and credentials
 if [[ -n "$REDIS_USERNAME_UMAMI_DEV" && -n "$REDIS_PASSWORD_UMAMI_DEV" ]]; then
@@ -94,7 +102,7 @@ echo ""
 echo "=== Database Configuration ==="
 echo "DATABASE_URL configured for Prisma v6 with SSL client certificate authentication"
 echo "  - sslmode: require"
-echo "  - sslcert: /tmp/client-cert-full.pem (combined chain)"
+echo "  - sslcert: [using NAIS provided client cert directly]"
 echo "  - sslkey: [using NAIS provided key]"
 echo "  - sslrootcert: [using NAIS provided CA]"
 echo ""
