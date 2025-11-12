@@ -79,6 +79,15 @@ fi
 # Using original NAIS certificate files directly
 export DATABASE_URL="postgresql://$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_USERNAME:$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PASSWORD@$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_HOST:$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PORT/umami-dev?sslmode=require&sslcert=$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLCERT&sslkey=$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLKEY&sslrootcert=$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLROOTCERT"
 
+# Umami v3 might also check these separate environment variables
+export DATABASE_TYPE="postgresql"
+export DATABASE_HOST="$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_HOST"
+export DATABASE_PORT="$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PORT"
+export DATABASE_NAME="umami-dev"
+export DATABASE_USER="$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_USERNAME"
+export DATABASE_PASSWORD="$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PASSWORD"
+export DATABASE_SSL="true"
+
 # Test the connection with psql to verify SSL auth works
 echo ""
 echo "=== Testing PostgreSQL connection with psql ==="
@@ -98,10 +107,16 @@ fi
 echo ""
 echo "=== Database Configuration ==="
 echo "DATABASE_URL configured for Prisma v6 with SSL client certificate authentication"
+echo "  - Host: $NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_HOST"
+echo "  - Port: $NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PORT"
+echo "  - Database: umami-dev"
 echo "  - sslmode: require"
 echo "  - sslcert: [using NAIS provided client cert directly]"
 echo "  - sslkey: [using NAIS provided key]"
 echo "  - sslrootcert: [using NAIS provided CA]"
+echo ""
+echo "Full DATABASE_URL (masked password):"
+echo "$DATABASE_URL" | sed 's/:'"$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PASSWORD"'@/:***@/'
 echo ""
 
 PRISMA_EXIT_CODE="${PRISMA_EXIT_CODE:-0}"
