@@ -12,7 +12,13 @@ mkdir -p $PRISMA_CLI_CACHE_DIR
 # Debug statement to print the password being used
 # echo "Using password: $NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PASSWORD"
 
-# Export the client identity file
+# Create a combined certificate file with the full chain for Prisma v6
+# This includes both the client certificate and the CA root certificate
+cat $NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLCERT > /tmp/client-cert-full.pem
+echo "" >> /tmp/client-cert-full.pem
+cat $NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLROOTCERT >> /tmp/client-cert-full.pem
+
+# Also create the legacy PKCS12 format for debugging
 openssl pkcs12 -password pass:$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PASSWORD -export -out /tmp/client-identity.p12 -inkey $NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLKEY -in $NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLCERT
 
 # Convert the client identity file to PEM format
@@ -20,6 +26,10 @@ openssl pkcs12 -in /tmp/client-identity.p12 -out /tmp/client-identity.pem -nodes
 
 # Check the contents of the PEM file
 openssl x509 -in /tmp/client-identity.pem -text -noout
+
+# Verify the combined certificate file
+echo "Verifying combined certificate chain..."
+openssl verify -CAfile $NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLROOTCERT /tmp/client-cert-full.pem
 
 # Debug statement to print the SSL root certificate path
 # echo "SSL Root Certificate Path: $NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLROOTCERT"
@@ -52,7 +62,8 @@ fi
 
 # Set the DATABASE_URL environment variable
 # Prisma v6+ uses different SSL parameter names: sslmode, sslcert, sslkey, sslrootcert
-export DATABASE_URL="postgresql://$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_USERNAME:$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PASSWORD@$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_HOST:$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PORT/umami-dev?sslmode=require&sslcert=$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLCERT&sslkey=$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLKEY&sslrootcert=$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLROOTCERT" || echo "Failed to set DATABASE_URL" >> /tmp/run_error.log
+# Using the combined certificate file that includes the full chain
+export DATABASE_URL="postgresql://$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_USERNAME:$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PASSWORD@$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_HOST:$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PORT/umami-dev?sslmode=require&sslcert=/tmp/client-cert-full.pem&sslkey=$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLKEY&sslrootcert=$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLROOTCERT" || echo "Failed to set DATABASE_URL" >> /tmp/run_error.log
 
 # Export REDIS_URL for the REDIS instance using the URI and credentials
 if [[ -n "$REDIS_USERNAME_UMAMI_DEV" && -n "$REDIS_PASSWORD_UMAMI_DEV" ]]; then
