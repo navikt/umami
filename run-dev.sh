@@ -50,8 +50,12 @@ if [ ! -f "/tmp/client-identity.p12" ]; then
   echo "Client identity file not found at /tmp/client-identity.p12" >> /tmp/run_error.log
 fi
 
-# Set the DATABASE_URL environment variable
-export DATABASE_URL="postgresql://$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_USERNAME:$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PASSWORD@$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_HOST:$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PORT/umami-dev?sslidentity=/tmp/client-identity.p12&sslpassword=$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PASSWORD&sslcert=$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLROOTCERT" || echo "Failed to set DATABASE_URL" >> /tmp/run_error.log
+# Set the DATABASE_URL environment variable with proper SSL parameters for Prisma 6
+# Use sslmode=require and point to the PEM certificate files
+export DATABASE_URL="postgresql://$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_USERNAME:$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PASSWORD@$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_HOST:$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PORT/umami-dev?sslmode=require&sslcert=/tmp/client-identity.pem&sslkey=$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLKEY&sslrootcert=$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLROOTCERT" || echo "Failed to set DATABASE_URL" >> /tmp/run_error.log
+
+# Also set NODE_OPTIONS to use system CA certificates
+export NODE_OPTIONS="${NODE_OPTIONS:+$NODE_OPTIONS }--use-openssl-ca"
 
 # Export REDIS_URL for the REDIS instance using the URI and credentials
 if [[ -n "$REDIS_USERNAME_UMAMI_DEV" && -n "$REDIS_PASSWORD_UMAMI_DEV" ]]; then
