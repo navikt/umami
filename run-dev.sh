@@ -60,26 +60,18 @@ rm -f "$SSL_OUTPUT_FILE"
 if [ -n "$DB_SERVER_NAME" ]; then
   echo "Detected database server name from certificate: $DB_SERVER_NAME"
 else
-  DB_SERVER_NAME="$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_HOST"
-  echo "Warning: Could not detect server name from certificate. Using host: $DB_SERVER_NAME"
+  echo "Warning: Could not detect server name from certificate."
+  DB_SERVER_NAME=""
 fi
 
-CONNECTION_SSLMODE="require"
-if [ "$DB_SERVER_NAME" != "$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_HOST" ]; then
-  if ! grep -q "$DB_SERVER_NAME" /etc/hosts; then
-    if echo "Attempting to map $DB_SERVER_NAME to $NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_HOST in /etc/hosts"; then
-      if echo "$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_HOST $DB_SERVER_NAME" | tee -a /etc/hosts >/dev/null 2>&1; then
-        echo "Added $DB_SERVER_NAME to /etc/hosts"
-        CONNECTION_SSLMODE="verify-full"
-      else
-        echo "Warning: Unable to write to /etc/hosts. Falling back to sslmode=verify-ca with direct IP"
-        DB_SERVER_NAME="$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_HOST"
-        CONNECTION_SSLMODE="verify-ca"
-      fi
-    fi
-  else
-    CONNECTION_SSLMODE="verify-full"
-  fi
+# Since the filesystem is read-only (except /tmp), we cannot write to /etc/hosts.
+# Use the provided host/IP directly and relax hostname verification.
+CONNECTION_SSLMODE="verify-ca"
+DB_CONNECT_HOST="$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_HOST"
+if [ -n "$DB_SERVER_NAME" ]; then
+  echo "Using host $DB_CONNECT_HOST with sslmode=$CONNECTION_SSLMODE (certificate SAN: $DB_SERVER_NAME)"
+else
+  echo "Using host $DB_CONNECT_HOST with sslmode=$CONNECTION_SSLMODE"
 fi
 
 echo ""
@@ -105,12 +97,12 @@ if [ ! -f "/tmp/client-cert-full.pem" ]; then
 fi
 
 # Set the DATABASE_URL environment variable for Umami v3
-# Use the DNS name from the certificate for TLS verification, but keep hostaddr for direct connection
-export DATABASE_URL="postgresql://$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_USERNAME:$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PASSWORD@$DB_SERVER_NAME:$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PORT/umami-dev?sslmode=$CONNECTION_SSLMODE&hostaddr=$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_HOST"
+# Use the NAIS-provided host/IP directly with sslmode=verify-ca
+export DATABASE_URL="postgresql://$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_USERNAME:$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PASSWORD@$DB_CONNECT_HOST:$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PORT/umami-dev?sslmode=$CONNECTION_SSLMODE"
 
 # Umami v3 requires these separate environment variables
 export DATABASE_TYPE="postgresql"
-export DATABASE_HOST="$DB_SERVER_NAME"
+export DATABASE_HOST="$DB_CONNECT_HOST"
 export DATABASE_PORT="$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PORT"
 export DATABASE_NAME="umami-dev"
 export DATABASE_USER="$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_USERNAME"
@@ -121,8 +113,8 @@ export PGSSLMODE="$CONNECTION_SSLMODE"
 export PGSSLCERT="$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLCERT"
 export PGSSLKEY="$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLKEY"
 export PGSSLROOTCERT="$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLROOTCERT"
-export PGHOST="$DB_SERVER_NAME"
-export PGHOSTADDR="$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_HOST"
+export PGHOST="$DB_CONNECT_HOST"
+export PGHOSTADDR="$DB_CONNECT_HOST"
 
 # Node.js SSL environment variables for TLS connections
 export NODE_EXTRA_CA_CERTS="$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLROOTCERT"
@@ -131,7 +123,7 @@ export NODE_EXTRA_CA_CERTS="$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLROOTCERT"
 echo ""
 echo "=== Testing PostgreSQL connection with psql ==="
 PGPASSWORD="$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PASSWORD" psql \
-  "host=$DB_SERVER_NAME hostaddr=$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_HOST sslmode=$CONNECTION_SSLMODE sslcert=$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLCERT sslkey=$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLKEY sslrootcert=$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLROOTCERT port=$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PORT dbname=umami-dev user=$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_USERNAME" \
+  "host=$DB_CONNECT_HOST sslmode=$CONNECTION_SSLMODE sslcert=$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLCERT sslkey=$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLKEY sslrootcert=$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLROOTCERT port=$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PORT dbname=umami-dev user=$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_USERNAME" \
   -c "SELECT version();" 2>&1 | head -5 || echo "Note: psql test failed, but Prisma might still work"
 echo ""
 
@@ -151,6 +143,9 @@ echo "  - Port: $DATABASE_PORT"
 echo "  - Database: $DATABASE_NAME"
 echo "  - User: $DATABASE_USER"
 echo "  - Hostaddr: $PGHOSTADDR"
+if [ -n "$DB_SERVER_NAME" ]; then
+  echo "  - Certificate SAN: $DB_SERVER_NAME"
+fi
 echo ""
 echo "PostgreSQL SSL Environment Variables:"
 echo "  - PGSSLMODE: $PGSSLMODE"
@@ -158,6 +153,7 @@ echo "  - PGSSLCERT: $PGSSLCERT"
 echo "  - PGSSLKEY: $PGSSLKEY"
 echo "  - PGSSLROOTCERT: $PGSSLROOTCERT"
 echo "  - NODE_EXTRA_CA_CERTS: $NODE_EXTRA_CA_CERTS"
+echo "Connection SSL Mode in use: $CONNECTION_SSLMODE"
 echo ""
 echo "Full DATABASE_URL (masked password):"
 echo "$DATABASE_URL" | sed 's/:'"$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PASSWORD"'@/:***@/'
