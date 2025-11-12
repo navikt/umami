@@ -75,9 +75,9 @@ if [ ! -f "/tmp/client-cert-full.pem" ]; then
 fi
 
 # Set the DATABASE_URL environment variable for Umami v3
-# Umami v3 with driver adapters may not support SSL parameters in the URL
-# So we provide both: a clean URL + separate SSL env vars
-export DATABASE_URL="postgresql://$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_USERNAME:$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PASSWORD@$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_HOST:$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PORT/umami-dev"
+# Umami v3 with driver adapters requires SSL params in a specific format
+# Using query parameters that work with @neondatabase/serverless driver
+export DATABASE_URL="postgresql://$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_USERNAME:$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PASSWORD@$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_HOST:$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PORT/umami-dev?sslmode=require"
 
 # Umami v3 requires these separate environment variables
 export DATABASE_TYPE="postgresql"
@@ -87,11 +87,14 @@ export DATABASE_NAME="umami-dev"
 export DATABASE_USER="$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_USERNAME"
 export DATABASE_PASSWORD="$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PASSWORD"
 
-# SSL configuration for PostgreSQL/Prisma
+# SSL configuration for PostgreSQL/Prisma - both env vars and for manual connection
 export PGSSLMODE="require"
 export PGSSLCERT="$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLCERT"
 export PGSSLKEY="$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLKEY"
 export PGSSLROOTCERT="$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLROOTCERT"
+
+# Node.js SSL environment variables for TLS connections
+export NODE_EXTRA_CA_CERTS="$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLROOTCERT"
 
 # Test the connection with psql to verify SSL auth works
 echo ""
@@ -122,6 +125,7 @@ echo "  - PGSSLMODE: $PGSSLMODE"
 echo "  - PGSSLCERT: $PGSSLCERT"
 echo "  - PGSSLKEY: $PGSSLKEY"
 echo "  - PGSSLROOTCERT: $PGSSLROOTCERT"
+echo "  - NODE_EXTRA_CA_CERTS: $NODE_EXTRA_CA_CERTS"
 echo ""
 echo "Full DATABASE_URL (masked password):"
 echo "$DATABASE_URL" | sed 's/:'"$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PASSWORD"'@/:***@/'
