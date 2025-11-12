@@ -6,9 +6,8 @@ RUN apk update && apk add --no-cache bash openssl ca-certificates postgresql-cli
 WORKDIR /app
 
 # Set environment variables for Prisma v6+
-ENV PRISMA_CLI_QUERY_ENGINE_TYPE=binary
-ENV PRISMA_CLIENT_ENGINE_TYPE=binary
-ENV PRISMA_SCHEMA_ENGINE_TYPE=binary
+# Umami v3.0+ uses driver adapters which require the library engine
+ENV PRISMA_CLIENT_ENGINE_TYPE=library
 
 # Ensure Prisma client directory has correct permissions
 # The engines are managed by pnpm, we just need write access to the generated client

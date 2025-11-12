@@ -62,9 +62,6 @@ openssl verify -CAfile $NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLROOTCERT /tmp/clien
 echo ""
 echo "=== Setup complete, proceeding with application startup ===="
 
-echo ""
-echo "=== Setup complete, proceeding with application startup ===="
-
 # Check if the root certificate file exists
 if [ ! -f "$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLROOTCERT" ]; then
   echo "ERROR: Root certificate file not found at $NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLROOTCERT" | tee -a /tmp/run_error.log
