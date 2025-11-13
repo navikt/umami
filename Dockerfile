@@ -5,12 +5,6 @@ RUN apk update && apk add --no-cache bash openssl ca-certificates postgresql-cli
 
 WORKDIR /app
 
-# Prisma 6.16.0+ uses TypeScript-based Query Compiler (no Rust binaries)
-# These environment variables are no longer needed:
-# - PRISMA_CLI_QUERY_ENGINE_TYPE=binary
-# - PRISMA_CLIENT_ENGINE_TYPE=binary  
-# - PRISMA_SCHEMA_ENGINE_TYPE=binary
-
 # Ensure .prisma directory has correct permissions (still needed for generated client)
 RUN mkdir -p /app/node_modules/.prisma && \
     chmod -R 777 /app/node_modules/.prisma
