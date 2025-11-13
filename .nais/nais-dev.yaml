@@ -15,6 +15,10 @@ spec:
   env:
     - name: "RUN_SCRIPT"
       value: "run-dev.sh"
+    - name: "DATABASE_URL"
+      value: "$(NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_URL)"
+    - name: "DATABASE_HOST"
+      value: "$(NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_HOST)"
     - name: "DATABASE_TYPE"
       value: "postgresql"
     - name: "FORCE_SSL"
