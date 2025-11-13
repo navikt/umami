@@ -9,66 +9,75 @@ export PRISMA_CLI_CACHE_DIR="/tmp/.cache"
 # Create the cache directory if it doesn't exist
 mkdir -p $PRISMA_CLI_CACHE_DIR
 
-# Debug statement to print the password being used
-# echo "Using password: $NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PASSWORD"
+# Create directory for SSL certificates
+mkdir -p /tmp/ssl
 
-# Export the client identity file
-openssl pkcs12 -password pass:$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PASSWORD -export -out /tmp/client-identity.p12 -inkey $NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLKEY -in $NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLCERT
+# Export and convert certificates to PEM format
+echo "Converting certificates..."
 
-# Convert the client identity file to PEM format
-openssl pkcs12 -in /tmp/client-identity.p12 -out /tmp/client-identity.pem -nodes -password pass:$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PASSWORD
+# Convert client certificate and key to PEM format
+cat "$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLCERT" > /tmp/ssl/client-cert.pem
+cat "$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLKEY" > /tmp/ssl/client-key.pem
+cat "$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLROOTCERT" > /tmp/ssl/ca-cert.pem
 
-# Check the contents of the PEM file
-openssl x509 -in /tmp/client-identity.pem -text -noout
+# Set proper permissions for key file (PostgreSQL requires this)
+chmod 600 /tmp/ssl/client-key.pem
 
-# Debug statement to print the SSL root certificate path
-# echo "SSL Root Certificate Path: $NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLROOTCERT"
+# Verify certificates exist
+if [ ! -f "/tmp/ssl/ca-cert.pem" ]; then
+    echo "Root certificate file not found" >> /tmp/run_error.log
+    exit 1
+fi
 
-# Check the SSL connection to the database
-openssl s_client -connect $NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_HOST:$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PORT -CAfile $NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLROOTCERT
+if [ ! -f "/tmp/ssl/client-cert.pem" ]; then
+    echo "Client certificate file not found" >> /tmp/run_error.log
+    exit 1
+fi
+
+# Test SSL connection
+echo "Testing SSL connection..."
+openssl s_client -connect $NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_HOST:$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PORT \
+    -CAfile /tmp/ssl/ca-cert.pem \
+    -cert /tmp/ssl/client-cert.pem \
+    -key /tmp/ssl/client-key.pem \
+    -showcerts < /dev/null
 
 # Verify the certificates
-openssl verify -CAfile $NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLROOTCERT /tmp/client-identity.pem
+openssl verify -CAfile /tmp/ssl/ca-cert.pem /tmp/ssl/client-cert.pem
 VERIFY_EXIT_CODE=$?
 
 if [ $VERIFY_EXIT_CODE -eq 0 ]; then
-  echo "Certificate verification successful."
+    echo "Certificate verification successful."
 else
-  echo "Certificate verification failed."
-  if [ $VERIFY_EXIT_CODE -eq 20 ]; then
-    echo "Error: unable to get local issuer certificate."
-  fi
+    echo "Certificate verification failed with exit code: $VERIFY_EXIT_CODE"
+    if [ $VERIFY_EXIT_CODE -eq 20 ]; then
+        echo "Error: unable to get local issuer certificate."
+    fi
 fi
 
-# Check if the root certificate file exists
-if [ ! -f "$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLROOTCERT" ]; then
-  echo "Root certificate file not found at $NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLROOTCERT" >> /tmp/run_error.log
-fi
+# Set PostgreSQL SSL environment variables (standard approach for Prisma 6.16.0+)
+export PGSSLMODE=verify-full
+export PGSSLCERT=/tmp/ssl/client-cert.pem
+export PGSSLKEY=/tmp/ssl/client-key.pem
+export PGSSLROOTCERT=/tmp/ssl/ca-cert.pem
 
-# Check if the client identity file exists
-if [ ! -f "/tmp/client-identity.p12" ]; then
-  echo "Client identity file not found at /tmp/client-identity.p12" >> /tmp/run_error.log
-fi
-
-# Set the DATABASE_URL environment variable
-export DATABASE_URL="postgresql://$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_USERNAME:$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PASSWORD@$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_HOST:$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PORT/umami-dev?sslidentity=/tmp/client-identity.p12&sslpassword=$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PASSWORD&sslcert=$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLROOTCERT" || echo "Failed to set DATABASE_URL" >> /tmp/run_error.log
+# Set the DATABASE_URL with standard SSL parameters
+export DATABASE_URL="postgresql://$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_USERNAME:$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PASSWORD@$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_HOST:$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PORT/umami-dev?sslmode=verify-full&sslcert=/tmp/ssl/client-cert.pem&sslkey=/tmp/ssl/client-key.pem&sslrootcert=/tmp/ssl/ca-cert.pem"
 
 # Export REDIS_URL for the REDIS instance using the URI and credentials
 if [[ -n "$REDIS_USERNAME_UMAMI_DEV" && -n "$REDIS_PASSWORD_UMAMI_DEV" ]]; then
-  export REDIS_URL="$(echo $REDIS_URI_UMAMI_DEV | sed "s#://#://$REDIS_USERNAME_UMAMI_DEV:$REDIS_PASSWORD_UMAMI_DEV@#")"
+    export REDIS_URL="$(echo $REDIS_URI_UMAMI_DEV | sed "s#://#://$REDIS_USERNAME_UMAMI_DEV:$REDIS_PASSWORD_UMAMI_DEV@#")"
 else
-  export REDIS_URL="$REDIS_URI_UMAMI_DEV"
+    export REDIS_URL="$REDIS_URI_UMAMI_DEV"
 fi
 
-# Debug statement to print the DATABASE_URL
-echo "DATABASE_URL: $DATABASE_URL"
+# Debug statement to print the DATABASE_URL (with password masked)
+echo "DATABASE_URL: $(echo $DATABASE_URL | sed 's/:[^:]*@/:****@/')"
 
-PRISMA_EXIT_CODE="${PRISMA_EXIT_CODE:-0}"
-if [ "$PRISMA_EXIT_CODE" -ne 0 ]; then
-  echo "Failed to connect to the database. See /tmp/prisma_output.log for details." >> /tmp/run_error.log
-else
-  echo "Successfully pushed Prisma schema to the database." >> /tmp/prisma_output.log
-fi
+# Test database connection
+echo "Testing database connection..."
+psql "$DATABASE_URL" -c "SELECT version();" || echo "Database connection test failed" >> /tmp/run_error.log
 
 # Start the application
+echo "Starting application..."
 yarn start-docker
