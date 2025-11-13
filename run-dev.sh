@@ -4,7 +4,7 @@
 export DEBUG="prisma:*:info"
 
 # Export DATABASE_URL with sslaccept parameter appended
-export DATABASE_URL="${NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_URL}&sslaccept=accept_invalid_certs"
+export DATABASE_URL="${NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_URL}&sslmode=no-verify"
 
 # Export REDIS_URL for the REDIS instance using the URI and credentials
 if [[ -n "$REDIS_USERNAME_UMAMI_DEV" && -n "$REDIS_PASSWORD_UMAMI_DEV" ]]; then
