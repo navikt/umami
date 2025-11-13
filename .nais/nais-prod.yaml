@@ -27,6 +27,14 @@ spec:
       value: "0"
     - name: "SKIP_DB_MIGRATION"
       value: "1"
+    - name: "DEBUG"
+      value: "prisma:*:info"
+    - name: "PRISMA_CLI_CACHE_DIR"
+      value: "/tmp/.cache"
+    - name: "DATABASE_URL"
+      value: "$(NAIS_DATABASE_REOPS_UMAMI_BETA_REOPS_UMAMI_BETA_URL)&sslmode=no-verify"
+    - name: "REDIS_URL"
+      value: "rediss://$(VALKEY_USERNAME_REOPS_UMAMI_BETA):$(VALKEY_PASSWORD_REOPS_UMAMI_BETA)@$(VALKEY_HOST_REOPS_UMAMI_BETA):$(VALKEY_PORT_REOPS_UMAMI_BETA)"
   accessPolicy:
     inbound:
       rules:
