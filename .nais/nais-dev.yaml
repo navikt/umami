@@ -29,8 +29,6 @@ spec:
       value: "prisma:*:info"
     - name: "DATABASE_URL"
       value: "$(NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_URL)&sslmode=no-verify"
-    - name: "REDIS_URL"
-      value: "$(REDIS_URI_UMAMI_DEV)"
   accessPolicy:
     inbound:
       rules:
