@@ -11,6 +11,7 @@ else
 fi
 
 # Debug output
+echo "DATABASE_URL: $(echo $NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_URL | sed 's/:[^:@]*@/:****@/')"
 echo "REDIS_URL: $(echo $REDIS_URL | sed 's/:[^:@]*@/:****@/')"
 
 # Start the application
