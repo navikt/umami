@@ -4,7 +4,14 @@
 export DEBUG="prisma:*:info"
 
 # Use the full DATABASE_URL provided by NAIS
-export DATABASE_URL="$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_URL"
+# Add sslaccept parameter for Google Cloud SQL compatibility
+if [[ "$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_URL" == *"sslaccept="* ]]; then
+    # Already has sslaccept parameter
+    export DATABASE_URL="$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_URL"
+else
+    # Add sslaccept=accept_invalid_certs for Google Cloud SQL
+    export DATABASE_URL="${NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_URL}&sslaccept=accept_invalid_certs"
+fi
 
 # Export REDIS_URL for the REDIS instance using the URI and credentials
 if [[ -n "$REDIS_USERNAME_UMAMI_DEV" && -n "$REDIS_PASSWORD_UMAMI_DEV" ]]; then
