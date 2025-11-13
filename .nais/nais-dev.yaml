@@ -16,7 +16,7 @@ spec:
     - name: "RUN_SCRIPT"
       value: "run-dev.sh"
     - name: "DATABASE_URL"
-      value: "$(NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_URL)?sslaccept=accept_invalid_certs"
+      value: "$(NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_URL)&sslaccept=accept_invalid_certs"
     - name: "DATABASE_TYPE"
       value: "postgresql"
     - name: "FORCE_SSL"
