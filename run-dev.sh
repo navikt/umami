@@ -8,10 +8,12 @@ echo "Original NAIS DATABASE_URL: $(echo $NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_URL 
 
 # Use the full DATABASE_URL provided by NAIS
 export DATABASE_URL="$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_URL"
+export DATABASE_HOST="$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_HOST"
 
 # Debug: Extract and display the hostname from the connection string
 HOSTNAME=$(echo $DATABASE_URL | sed -n 's/.*@\([^:]*\):.*/\1/p')
 echo "Extracted hostname from DATABASE_URL: $HOSTNAME"
+echo "NAIS provided host: $NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_HOST"
 
 # Warning if localhost is detected
 if [[ "$HOSTNAME" == "localhost" || "$HOSTNAME" == "127.0.0.1" ]]; then
