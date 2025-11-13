@@ -15,8 +15,7 @@ RUN mkdir -p /app/.next && \
 
 # Copy all run scripts and set permissions
 COPY run.sh /app/run.sh
-COPY run-dev.sh /app/run-dev.sh
-RUN chmod +x /app/run.sh /app/run-dev.sh
+RUN chmod +x /app/run.sh
 
 EXPOSE 3000
 
