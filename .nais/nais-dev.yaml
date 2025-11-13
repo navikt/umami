@@ -13,8 +13,6 @@ spec:
     - instance: umami-dev
       access: readwrite
   env:
-    - name: "RUN_SCRIPT"
-      value: "run-dev.sh"
     - name: "DATABASE_TYPE"
       value: "postgresql"
     - name: "FORCE_SSL"
@@ -27,6 +25,12 @@ spec:
       value: "0"
     - name: "SKIP_DB_MIGRATION"
       value: "1"
+    - name: "DEBUG"
+      value: "prisma:*:info"
+    - name: "DATABASE_URL"
+      value: "{{ .Env.NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_URL }}&sslmode=no-verify"
+    - name: "REDIS_URL"
+      value: "{{ regexReplaceAll \"://\" .Env.REDIS_URI_UMAMI_DEV \"://{{ .Env.REDIS_USERNAME_UMAMI_DEV }}:{{ .Env.REDIS_PASSWORD_UMAMI_DEV }}@\" }}"
   accessPolicy:
     inbound:
       rules:
