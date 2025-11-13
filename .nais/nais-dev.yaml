@@ -28,9 +28,9 @@ spec:
     - name: "DEBUG"
       value: "prisma:*:info"
     - name: "DATABASE_URL"
-      value: "{{ .Env.NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_URL }}&sslmode=no-verify"
+      value: "$(NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_URL)&sslmode=no-verify"
     - name: "REDIS_URL"
-      value: "{{ regexReplaceAll \"://\" .Env.REDIS_URI_UMAMI_DEV \"://{{ .Env.REDIS_USERNAME_UMAMI_DEV }}:{{ .Env.REDIS_PASSWORD_UMAMI_DEV }}@\" }}"
+      value: "$(REDIS_URI_UMAMI_DEV)"
   accessPolicy:
     inbound:
       rules:
