@@ -3,14 +3,23 @@
 # Enable Prisma debugging (optional - remove if you don't need it)
 export DEBUG="prisma:*:info"
 
+# Debug: Print the original DATABASE_URL from NAIS (with password masked)
+echo "Original NAIS DATABASE_URL: $(echo $NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_URL | sed 's/:[^:@]*@/:****@/')"
+
 # Use the full DATABASE_URL provided by NAIS
-# Add sslaccept parameter for Google Cloud SQL compatibility
-if [[ "$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_URL" == *"sslaccept="* ]]; then
-    # Already has sslaccept parameter
-    export DATABASE_URL="$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_URL"
-else
-    # Add sslaccept=accept_invalid_certs for Google Cloud SQL
-    export DATABASE_URL="${NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_URL}&sslaccept=accept_invalid_certs"
+export DATABASE_URL="$NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_URL"
+
+# Debug: Extract and display the hostname from the connection string
+HOSTNAME=$(echo $DATABASE_URL | sed -n 's/.*@\([^:]*\):.*/\1/p')
+echo "Extracted hostname from DATABASE_URL: $HOSTNAME"
+
+# Warning if localhost is detected
+if [[ "$HOSTNAME" == "localhost" || "$HOSTNAME" == "127.0.0.1" ]]; then
+    echo "⚠️  WARNING: DATABASE_URL contains localhost!"
+    echo "This will cause certificate validation errors with Google Cloud SQL."
+    echo "Expected hostname should be: *.europe-north1.sql.goog"
+    echo ""
+    echo "Please check your NAIS configuration to ensure DATABASE_URL has the correct Cloud SQL hostname."
 fi
 
 # Export REDIS_URL for the REDIS instance using the URI and credentials
