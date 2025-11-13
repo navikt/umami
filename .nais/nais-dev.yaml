@@ -30,7 +30,7 @@ spec:
     - name: "DATABASE_URL"
       value: "$(NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_URL)&sslmode=no-verify"
     - name: "REDIS_URL"
-      value: "redis://$(VALKEY_USERNAME_UMAMI_DEV):$(VALKEY_PASSWORD_UMAMI_DEV)@$(VALKEY_HOST_UMAMI_DEV):$(VALKEY_PORT_UMAMI_DEV)"
+      value: "redis://$(VALKEY_URI_UMAMI_DEV)"
   accessPolicy:
     inbound:
       rules:
