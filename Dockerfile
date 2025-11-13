@@ -20,5 +20,5 @@ RUN chmod +x /app/run.sh /app/run-dev.sh
 
 EXPOSE 3000
 
-# Use environment variable to determine which script to run (default to run.sh for backward compatibility)
-CMD ["/bin/bash", "-c", "/app/${RUN_SCRIPT:-run.sh}"]
+# Default command can be overridden by nais.yaml command/args
+CMD ["yarn", "start-docker"]
