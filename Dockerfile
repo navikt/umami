@@ -13,10 +13,6 @@ RUN mkdir -p /app/node_modules/.prisma && \
 RUN mkdir -p /app/.next && \
     chmod -R 777 /app/.next
 
-# Copy all run scripts and set permissions
-COPY run.sh /app/run.sh
-RUN chmod +x /app/run.sh
-
 EXPOSE 3000
 
 # Default command can be overridden by nais.yaml command/args
