@@ -1,4 +1,4 @@
-FROM ghcr.io/umami-software/umami:3.0.2
+FROM ghcr.io/umami-software/umami:3.0.3
 USER root
 
 RUN apk update && apk add --no-cache bash openssl ca-certificates postgresql-client libc6-compat
