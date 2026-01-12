@@ -40,6 +40,7 @@ spec:
     inbound:
       rules:
         - application: umami-proxy-dev
+        - application: reops-umami-consumer
   gcp:
     sqlInstances:
       - type: POSTGRES_18
