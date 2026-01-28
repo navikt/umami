@@ -24,7 +24,7 @@ spec:
     - name: "SKIP_DB_CHECK"
       value: "0"
     - name: "SKIP_DB_MIGRATION"
-      value: "1"
+      value: "0"
     - name: "DEBUG"
       value: "prisma:*:info"
     - name: "PRISMA_CLI_CACHE_DIR"
