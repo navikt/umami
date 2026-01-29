@@ -35,21 +35,21 @@ jobs:
     outputs:
       image: ${{ steps.docker-build-push.outputs.image }}
 
-#  deploy-dev:
-#    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev')
-#    needs: build
-#    runs-on: "ubuntu-latest"
-#    permissions:
-#      contents: read
-#      id-token: write
-#    steps:
-#      - uses: "actions/checkout@v4"
-#      - name: "Deploy to Dev"
-#        uses: "nais/deploy/actions/deploy@v2"
-#        env:
-#          CLUSTER: "dev-gcp"
-#          RESOURCE: .nais/nais-dev.yaml
-#          VAR: image=${{ needs.build.outputs.image }},version=${{ github.sha }}
+  deploy-dev:
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev')
+    needs: build
+    runs-on: "ubuntu-latest"
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: "actions/checkout@v4"
+      - name: "Deploy to Dev"
+        uses: "nais/deploy/actions/deploy@v2"
+        env:
+          CLUSTER: "dev-gcp"
+          RESOURCE: .nais/nais-dev.yaml
+          VAR: image=${{ needs.build.outputs.image }},version=${{ github.sha }}
 
   deploy-prod-dev:
     if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev')
