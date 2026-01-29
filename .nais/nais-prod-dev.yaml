@@ -24,19 +24,22 @@ spec:
     - name: "SKIP_DB_CHECK"
       value: "0"
     - name: "SKIP_DB_MIGRATION"
-      value: "0"
+      value: "1"
     - name: "DEBUG"
       value: "prisma:*:info"
     - name: "PRISMA_CLI_CACHE_DIR"
       value: "/tmp/.cache"
     - name: "DATABASE_URL"
-      value: "postgresql://$(NAIS_DATABASE_UMAMI_UMAMI_USERNAME):$(NAIS_DATABASE_UMAMI_UMAMI_PASSWORD)@$(NAIS_DATABASE_UMAMI_UMAMI_HOST):$(NAIS_DATABASE_UMAMI_UMAMI_PORT)/umami?sslmode=no-verify&sslrootcert=$(NAIS_DATABASE_UMAMI_UMAMI_SSLROOTCERT)&sslcert=$(NAIS_DATABASE_UMAMI_UMAMI_SSLCERT)&sslkey=$(NAIS_DATABASE_UMAMI_UMAMI_SSLKEY)"
+      value: "postgresql://$(NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_USERNAME):$(NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PASSWORD)@$(NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_HOST):$(NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_PORT)/umami-dev?sslmode=no-verify&sslrootcert=$(NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLROOTCERT)&sslcert=$(NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLCERT)&sslkey=$(NAIS_DATABASE_UMAMI_DEV_UMAMI_DEV_SSLKEY)"
     - name: "REDIS_URL"
-      value: "rediss://$(VALKEY_USERNAME_UMAMI):$(VALKEY_PASSWORD_UMAMI)@$(VALKEY_HOST_UMAMI):$(VALKEY_PORT_UMAMI)"
+      value: "rediss://$(VALKEY_USERNAME_UMAMI_DEV):$(VALKEY_PASSWORD_UMAMI_DEV)@$(VALKEY_HOST_UMAMI_DEV):$(VALKEY_PORT_UMAMI_DEV)"
+    - name: "DEBUG"
+      value: "umami:*"
 
   accessPolicy:
     inbound:
       rules:
+        - application: umami-proxy-dev
         - application: reops-umami-consumer
   gcp:
     sqlInstances:
@@ -46,10 +49,12 @@ spec:
           - name: cloudsql.logical_decoding
             value: "on"
         databases:
-          - name: umami
+          - name: umami-dev
+            users:
+              - name: datastream
         diskAutoresize: true
   ingresses:
-    - "https://umami.ansatt.dev.nav.no"
+    - "https://umami-dev.ansatt.nav.no"
   resources:
     requests:
       cpu: "600m"

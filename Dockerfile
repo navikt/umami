@@ -1,5 +1,5 @@
 # Install dependencies only when needed
-FROM cgr.dev/chainguard/wolfi-base@sha256:77891a12dc762228955294f2207ee1cbd2b127f18dc7c7458203116288dce828 AS deps
+FROM cgr.dev/chainguard/wolfi-base@sha256:17ab0709456ce1a2aedd85e95f72e58d73133bb70c33ae945a4d4b2424e984f1 AS deps
 
 USER root
 
@@ -8,12 +8,12 @@ RUN apk add --no-cache nodejs npm git
 WORKDIR /app
 
 # Clone Umami source at specific version
-RUN git clone --depth 1 --branch v3.0.0 https://github.com/umami-software/umami.git . && \
+RUN git clone --depth 1 --branch v3.0.3 https://github.com/umami-software/umami.git . && \
     npm install -g pnpm && \
     pnpm install --frozen-lockfile
 
 # Rebuild the source code only when needed
-FROM cgr.dev/chainguard/wolfi-base@sha256:77891a12dc762228955294f2207ee1cbd2b127f18dc7c7458203116288dce828 AS builder
+FROM cgr.dev/chainguard/wolfi-base@sha256:17ab0709456ce1a2aedd85e95f72e58d73133bb70c33ae945a4d4b2424e984f1 AS builder
 
 USER root
 
@@ -39,12 +39,17 @@ ENV BASE_PATH=$BASE_PATH
 ENV NEXT_TELEMETRY_DISABLED=1
 # Set Node options to limit memory usage
 ENV NODE_OPTIONS="--max-old-space-size=3072"
+# Set dummy values for build-time to prevent URL construction errors
+# These will be overridden at runtime
+ENV DATABASE_URL=postgresql://user:pass@localhost:5432/umami
+ENV CLICKHOUSE_URL=http://localhost:8123/default
+ENV KAFKA_URL=kafka://localhost:9092
 
 RUN npm install -g pnpm && \
     pnpm run build-docker
 
 # Production image, copy all the files and run next
-FROM cgr.dev/chainguard/wolfi-base@sha256:77891a12dc762228955294f2207ee1cbd2b127f18dc7c7458203116288dce828 AS runner
+FROM cgr.dev/chainguard/wolfi-base@sha256:17ab0709456ce1a2aedd85e95f72e58d73133bb70c33ae945a4d4b2424e984f1 AS runner
 
 USER root
 
@@ -75,11 +80,6 @@ COPY --from=builder /app/generated ./generated
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Copy custom run scripts
-COPY --chown=nextjs:nodejs run.sh /app/run.sh
-COPY --chown=nextjs:nodejs run-dev.sh /app/run-dev.sh
-RUN chmod +x /app/run.sh /app/run-dev.sh
-
 USER nextjs
 
 EXPOSE 3000
@@ -87,5 +87,4 @@ EXPOSE 3000
 ENV HOSTNAME=0.0.0.0
 ENV PORT=3000
 
-# Use environment variable to determine which script to run (default to custom run.sh)
-CMD ["/bin/bash", "-c", "/app/${RUN_SCRIPT:-run.sh}"]
+CMD ["pnpm", "start-docker"]
