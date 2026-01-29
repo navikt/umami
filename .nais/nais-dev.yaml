@@ -36,16 +36,16 @@ spec:
     inbound:
       rules:
         - application: reops-umami-consumer
-  gcp:
-    sqlInstances:
-      - type: POSTGRES_18
-        tier: db-f1-micro
-        flags:
-          - name: cloudsql.logical_decoding
-            value: "on"
-        databases:
-          - name: umami
-        diskAutoresize: true
+#  gcp:
+#    sqlInstances:
+#      - type: POSTGRES_18
+#        tier: db-f1-micro
+#        flags:
+#          - name: cloudsql.logical_decoding
+#            value: "on"
+#        databases:
+#          - name: umami
+#        diskAutoresize: true
   ingresses:
     - "https://umami.ansatt.dev.nav.no"
   resources:
