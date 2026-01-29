@@ -21,6 +21,8 @@ spec:
       value: "1"
     - name: "LOG_QUERY"
       value: "0"
+    - name: "SKIP_DB_MIGRATION"
+      value: "1"
     - name: "DEBUG"
       value: "prisma:*:info"
     - name: "PRISMA_CLI_CACHE_DIR"
