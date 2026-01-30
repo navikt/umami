@@ -3,14 +3,14 @@ kind: Application
 metadata:
   annotations:
     nais.io/read-only-file-system: "false"
-  name: umami-dev
+  name: umami
   namespace: team-researchops
   labels:
     team: team-researchops
 spec:
   image: {{ image }}
   valkey:
-    - instance: umami-dev
+    - instance: umami
       access: readwrite
   env:
     - name: "DATABASE_TYPE"
@@ -30,7 +30,7 @@ spec:
     - name: "PRISMA_CLI_CACHE_DIR"
       value: "/tmp/.cache"
     - name: "DATABASE_URL"
-      value: "postgresql://$(NAIS_DATABASE_UMAMI_UMAMI_USERNAME):$(NAIS_DATABASE_UMAMI_UMAMI_PASSWORD)@$(NAIS_DATABASE_UMAMI_UMAMI_HOST):$(NAIS_DATABASE_UMAMI_UMAMI_PORT)/umami?sslmode=no-verify&sslrootcert=$(NAIS_DATABASE_UMAMI_UMAMI_SSLROOTCERT)&sslcert=$(NAIS_DATABASE_UMAMI_UMAMI_SSLCERT)&sslkey=$(NAIS_DATABASE_UMAMI_UMAMI_SSLKEY)"
+      value: "postgresql://$(NAIS_DATABASE_UMAMI_UMAMI_DB_USERNAME):$(NAIS_DATABASE_UMAMI_UMAMI_DB_PASSWORD)@$(NAIS_DATABASE_UMAMI_UMAMI_DB_HOST):$(NAIS_DATABASE_UMAMI_UMAMI_DB_PORT)/umami-db?sslmode=no-verify&sslrootcert=$(NAIS_DATABASE_UMAMI_UMAMI_DB_SSLROOTCERT)&sslcert=$(NAIS_DATABASE_UMAMI_UMAMI_DB_SSLCERT)&sslkey=$(NAIS_DATABASE_UMAMI_UMAMI_DB_SSLKEY)"
     - name: "REDIS_URL"
       value: "rediss://$(VALKEY_USERNAME_UMAMI):$(VALKEY_PASSWORD_UMAMI)@$(VALKEY_HOST_UMAMI):$(VALKEY_PORT_UMAMI)"
 
@@ -46,7 +46,9 @@ spec:
           - name: cloudsql.logical_decoding
             value: "on"
         databases:
-          - name: umami
+          - name: umami-db
+            users:
+              - name: datastream
         diskAutoresize: true
   ingresses:
     - "https://umami.ansatt.dev.nav.no"
