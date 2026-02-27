@@ -1,8 +1,8 @@
 # Install dependencies only when needed
-FROM cgr.dev/chainguard/wolfi-base@sha256:17ab0709456ce1a2aedd85e95f72e58d73133bb70c33ae945a4d4b2424e984f1 AS deps
+FROM cgr.dev/chainguard/wolfi-base AS deps
 
 USER root
-RUN apk add --no-cache nodejs npm git
+RUN apk add --no-cache nodejs-22 npm git
 
 WORKDIR /app
 
@@ -13,10 +13,10 @@ RUN git clone --depth 1 --branch v3.0.3 https://github.com/umami-software/umami.
 
 
 # Rebuild the source code only when needed
-FROM cgr.dev/chainguard/wolfi-base@sha256:17ab0709456ce1a2aedd85e95f72e58d73133bb70c33ae945a4d4b2424e984f1 AS builder
+FROM cgr.dev/chainguard/wolfi-base AS builder
 
 USER root
-RUN apk add --no-cache nodejs npm
+RUN apk add --no-cache nodejs-22 npm
 
 WORKDIR /app
 
@@ -48,10 +48,10 @@ RUN npm install -g pnpm && \
 
 
 # Production image, copy all the files and run next
-FROM cgr.dev/chainguard/wolfi-base@sha256:17ab0709456ce1a2aedd85e95f72e58d73133bb70c33ae945a4d4b2424e984f1 AS runner
+FROM cgr.dev/chainguard/wolfi-base AS runner
 
 USER root
-RUN apk add --no-cache nodejs npm bash openssl ca-certificates postgresql-client curl
+RUN apk add --no-cache nodejs-22 npm bash openssl ca-certificates postgresql-client curl
 
 WORKDIR /app
 
