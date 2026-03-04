@@ -38,8 +38,6 @@ spec:
   accessPolicy:
     inbound:
       rules:
-        - application: reops-felgen
-        - application: reops-proxy
         - application: umami-proxy
   gcp:
     sqlInstances:
