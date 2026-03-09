@@ -5,6 +5,38 @@ Umami er et åpent kildekode produktanalyseverktøy som brukes til å spore og a
 
 ---
 
+# Tracking Scripts (Sporings-skript)
+
+Dette repositoriet inneholder tilpassede Umami tracking-skript for ResearchOps-teamet.
+
+## Struktur
+
+```
+src/tracker/          # Kildefiler (rediger disse)
+  ├── index.js        # Base tracker → sporing.js
+  ├── sporing-dev.js  # Dev tracker med hardkodet endpoint
+  └── README.md       # Detaljert dokumentasjon
+
+public/sporing/       # Build output (git-ignored)
+  ├── sporing.js      # Minifisert base tracker
+  ├── sporing-dev.js  # Minifisert dev tracker
+  └── (eldre filer)   # Gamle varianter som fases ut
+```
+
+## Utvikling
+
+```bash
+# Installer avhengigheter
+npm install
+
+# Bygg minifiserte skript
+npm run build:tracker
+```
+
+Se [src/tracker/README.md](src/tracker/README.md) for detaljert dokumentasjon.
+
+---
+
 # Henvendelser om Umami
 
 Du kan sende spørsmål på e-post til [researchops@nav.no](mailto:researchops@nav.no).
