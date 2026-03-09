@@ -27,10 +27,10 @@ public/sporing/       # Build output (git-ignored)
 
 ```bash
 # Installer avhengigheter
-npm install
+pnpm install
 
 # Bygg minifiserte skript
-npm run build:tracker
+pnpm run build:tracker
 ```
 
 Se [src/tracker/README.md](src/tracker/README.md) for detaljert dokumentasjon.
