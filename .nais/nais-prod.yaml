@@ -39,6 +39,7 @@ spec:
     inbound:
       rules:
         - application: umami-proxy
+        - application: reops-umami-consumer
   gcp:
     sqlInstances:
       - type: POSTGRES_18
