@@ -2,7 +2,9 @@
   "name": "reops-umami-beta",
   "version": "1.0.0",
   "description": "ResearchOps Umami",
-  "scripts": {},
+  "scripts": {
+    "build:tracking-scripts": "node scripts/build-tracking-scripts.js"
+  },
   "keywords": [
     "umami",
     "analytics"
@@ -10,5 +12,10 @@
   "author": "Team ResearchOps",
   "license": "MIT",
   "dependencies": {},
-  "devDependencies": {}
+  "devDependencies": {
+    "terser": "^5.36.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
 }
