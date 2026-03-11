@@ -34,7 +34,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build tracker scripts
-        run: pnpm run build:tracker
+        run: pnpm run build:tracking-scripts
 
       - name: Upload static files to CDN
         uses: nais/deploy/actions/cdn-upload/v2@master
