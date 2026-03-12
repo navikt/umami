@@ -6,7 +6,8 @@ on:
     branches:
       - "main"
     paths:
-      - "public/sporing/**"
+      - "src/tracker/**"
+      - "scripts/build-tracking-scripts.js"
 
 jobs:
   upload:
@@ -18,6 +19,22 @@ jobs:
 
     steps:
       - uses: "actions/checkout@v4"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build tracker scripts
+        run: pnpm run build:tracking-scripts
 
       - name: Upload static files to CDN
         uses: nais/deploy/actions/cdn-upload/v2@master
