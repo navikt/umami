@@ -16,6 +16,8 @@
     ? undefined
     : window.localStorage;
 
+  const VERSION = "1";
+
   const _data = "data-";
   const _false = "false";
   const _true = "true";
@@ -171,6 +173,7 @@
         body: JSON.stringify({ type, payload }),
         headers: {
           "Content-Type": "application/json",
+          "X-Script-Version": VERSION,
           ...(typeof cache !== "undefined" && { "x-umami-cache": cache }),
         },
         credentials,
