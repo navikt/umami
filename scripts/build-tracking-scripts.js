@@ -19,7 +19,7 @@ if (!fs.existsSync(outputDir)) {
 // Scripts to build
 const scripts = [
   { input: "sporing.js", output: "sporing.js" },
-  { input: "sporing.js", output: "sporing-uten-uuid.js" },
+  { input: "sporing-uten-uuid.js", output: "sporing-uten-uuid.js" },
   // { input: "sporing.js", output: "sporing-uten-navident.js" },
   // { input: "sporing.js", output: "sporing-uten-veilederidentid.js" },
   // { input: "sporing.js", output: "sporing-uten-uuid-og-navident.js" },
