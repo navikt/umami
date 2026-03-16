@@ -25,7 +25,7 @@
   // Route to dev proxy for *.dev.nav.no, otherwise production url
   const hostUrl = hostname.endsWith(".dev.nav.no")
     ? "https://reops-event-proxy.ekstern.dev.nav.no"
-    : "https://umami.nav.no";
+    : "https://reops-event-proxy.nav.no";
   const beforeSend = attr(`${_data}before-send`);
   const tag = attr(`${_data}tag`) || undefined;
   const autoTrack = attr(`${_data}auto-track`) !== _false;
