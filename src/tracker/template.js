@@ -1,59 +1,48 @@
 ((window) => {
   const {
     screen: { width, height },
-    navigator: { language, doNotTrack: ndnt, msDoNotTrack: msdnt },
+    navigator: { language },
     location,
     document,
     history,
     top,
-    doNotTrack,
   } = window;
   const { currentScript, referrer } = document;
   if (!currentScript) return;
 
   const { hostname, href, origin } = location;
-  const localStorage = href.startsWith("data:")
-    ? undefined
-    : window.localStorage;
+  const localStorage = href.startsWith("data:") ? undefined : window.localStorage;
 
   const VERSION = "1";
 
-  const _data = "data-";
-  const _false = "false";
-  const _true = "true";
   const attr = currentScript.getAttribute.bind(currentScript);
 
-  const website = attr(`${_data}website-id`);
-  // Route to dev proxy for *.dev.nav.no, otherwise production url
-  const hostUrl = "https://reops-event-proxy.ekstern.dev.nav.no"
-  const beforeSend = attr(`${_data}before-send`);
-  const tag = attr(`${_data}tag`) || undefined;
-  const autoTrack = attr(`${_data}auto-track`) !== _false;
-  const dnt = attr(`${_data}do-not-track`) === _true;
-  const excludeSearch = attr(`${_data}exclude-search`) === _true;
-  const excludeHash = attr(`${_data}exclude-hash`) === _true;
-  const domain = attr(`${_data}domains`) || "";
-  const credentials = attr(`${_data}fetch-credentials`) || "omit";
-  const optOutFilters = attr(`${_data}opt-out-filters`) || undefined;
+  const website = attr("data-website-id");
+  if (!website) return;
+
+  const hostUrl = __HOST_URL__;
+  const beforeSend = attr("data-before-send");
+  const autoTrack = attr("data-auto-track") !== "false";
+  const domain = attr("data-domains") || "";
+  const optOutFilters = __OPT_OUT_FILTERS__;
 
   const domains = domain.split(",").map((n) => n.trim());
-  const host =
-    hostUrl || "" || currentScript.src.split("/").slice(0, -1).join("/");
-  const endpoint = `${host.replace(/\/$/, "")}/api/send`;
+
+  const endpoint = `${hostUrl.replace(/\/$/, "")}/api/send`;
   const screen = `${width}x${height}`;
   const eventRegex = /data-umami-event-([\w-_]+)/;
-  const eventNameAttribute = `${_data}umami-event`;
-  const delayDuration = 300;
+  const eventNameAttribute = "data-umami-event";
+
+  /* UUID redaction */
+
+  const redactUuid = __REDACT_UUID__;
 
   /* Helper functions */
 
   const normalize = (raw) => {
     if (!raw) return raw;
     try {
-      const u = new URL(raw, location.href);
-      if (excludeSearch) u.search = "";
-      if (excludeHash) u.hash = "";
-      return u.toString();
+      return redactUuid(new URL(raw, location.href).toString());
     } catch {
       return raw;
     }
@@ -63,18 +52,12 @@
     website,
     screen,
     language,
-    title: document.title,
+    title: redactUuid(document.title),
     hostname,
     url: currentUrl,
     referrer: currentRef,
-    tag,
-    id: identity ? identity : undefined,
+    id: identity || undefined,
   });
-
-  const hasDoNotTrack = () => {
-    const dnt = doNotTrack || ndnt || msdnt;
-    return dnt === 1 || dnt === "1" || dnt === "yes";
-  };
 
   /* Event handlers */
 
@@ -85,7 +68,7 @@
     currentUrl = normalize(new URL(url, location.href).toString());
 
     if (currentUrl !== currentRef) {
-      setTimeout(track, delayDuration);
+      setTimeout(track, 300);
     }
   };
 
@@ -148,15 +131,12 @@
   /* Tracking functions */
 
   const trackingDisabled = () =>
-    disabled ||
     !website ||
     localStorage?.getItem("umami.disabled") ||
-    (domain && !domains.includes(hostname)) ||
-    (dnt && hasDoNotTrack());
+    (domain && !domains.includes(hostname));
 
   const send = async (payload, type = "event") => {
     if (trackingDisabled()) return;
-
     const callback = window[beforeSend];
 
     if (typeof callback === "function") {
@@ -166,24 +146,17 @@
     if (!payload) return;
 
     try {
-      const res = await fetch(endpoint, {
+      await fetch(endpoint, {
         keepalive: true,
         method: "POST",
         body: JSON.stringify({ type, payload }),
         headers: {
           "Content-Type": "application/json",
           "X-Script-Version": VERSION,
-          ...(typeof cache !== "undefined" && { "x-umami-cache": cache }),
           ...(optOutFilters && { "x-opt-out-filters": optOutFilters }),
         },
-        credentials,
+        credentials: "omit",
       });
-
-      const data = await res.json();
-      if (data) {
-        disabled = !!data.disabled;
-        cache = data.cache;
-      }
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (_e) {
       /* no-op */
@@ -211,7 +184,6 @@
       identity = id;
     }
 
-    cache = "";
     return send(
       {
         ...getPayload(),
@@ -234,8 +206,6 @@
   let currentRef = normalize(referrer.startsWith(origin) ? "" : referrer);
 
   let initialized = false;
-  let disabled = false;
-  let cache;
   let identity;
 
   if (autoTrack && !trackingDisabled()) {
