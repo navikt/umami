@@ -20,11 +20,11 @@
   const website = attr("data-website-id");
   if (!website) return;
 
-  const hostUrl = __HOST_URL__;
+  const hostUrl = "https://reops-event-proxy.ekstern.dev.nav.no";
   const beforeSend = attr("data-before-send");
   const autoTrack = attr("data-auto-track") !== "false";
   const domain = attr("data-domains") || "";
-  const optOutFilters = __OPT_OUT_FILTERS__;
+  const optOutFilters = attr("data-opt-out-filters") || undefined;
 
   const domains = domain.split(",").map((n) => n.trim());
 
@@ -35,7 +35,7 @@
 
   /* UUID redaction */
 
-  const redactUuid = __REDACT_UUID__;
+  const redactUuid = (s) => s;
 
   /* Helper functions */
 
