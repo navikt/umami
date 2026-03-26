@@ -25,13 +25,11 @@
 
   const website = attr(`${_data}website-id`);
   // Route to dev proxy for *.dev.nav.no, otherwise production url
-  const hostUrl = "https://reops-event-proxy.ekstern.dev.nav.no"
+  const hostUrl = "https://reops-event-proxy.ekstern.dev.nav.no";
   const beforeSend = attr(`${_data}before-send`);
   const tag = attr(`${_data}tag`) || undefined;
   const autoTrack = attr(`${_data}auto-track`) !== _false;
   const dnt = attr(`${_data}do-not-track`) === _true;
-  const excludeSearch = attr(`${_data}exclude-search`) === _true;
-  const excludeHash = attr(`${_data}exclude-hash`) === _true;
   const domain = attr(`${_data}domains`) || "";
   const credentials = attr(`${_data}fetch-credentials`) || "omit";
   const optOutFilters = attr(`${_data}opt-out-filters`) || undefined;
@@ -51,8 +49,6 @@
     if (!raw) return raw;
     try {
       const u = new URL(raw, location.href);
-      if (excludeSearch) u.search = "";
-      if (excludeHash) u.hash = "";
       return u.toString();
     } catch {
       return raw;
@@ -173,7 +169,6 @@
         headers: {
           "Content-Type": "application/json",
           "X-Script-Version": VERSION,
-          ...(typeof cache !== "undefined" && { "x-umami-cache": cache }),
           ...(optOutFilters && { "x-opt-out-filters": optOutFilters }),
         },
         credentials,
@@ -182,7 +177,6 @@
       const data = await res.json();
       if (data) {
         disabled = !!data.disabled;
-        cache = data.cache;
       }
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (_e) {
@@ -211,7 +205,6 @@
       identity = id;
     }
 
-    cache = "";
     return send(
       {
         ...getPayload(),
@@ -235,7 +228,6 @@
 
   let initialized = false;
   let disabled = false;
-  let cache;
   let identity;
 
   if (autoTrack && !trackingDisabled()) {
