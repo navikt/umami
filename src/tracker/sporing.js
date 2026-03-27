@@ -37,6 +37,7 @@
   const excludeHash = attr(`${_data}exclude-hash`) === _true;
   const domain = attr(`${_data}domains`) || "";
   const credentials = attr(`${_data}fetch-credentials`) || "omit";
+  const optOutFilters = attr(`${_data}opt-out-filters`) || undefined;
 
   const domains = domain.split(",").map((n) => n.trim());
   const host =
@@ -176,6 +177,7 @@
           "Content-Type": "application/json",
           "X-Script-Version": VERSION,
           ...(typeof cache !== "undefined" && { "x-umami-cache": cache }),
+          ...(optOutFilters && { "x-opt-out-filters": optOutFilters }),
         },
         credentials,
       });
