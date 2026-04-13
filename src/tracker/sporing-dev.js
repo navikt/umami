@@ -30,6 +30,7 @@
   const tag = attr(`${_data}tag`) || undefined;
   const autoTrack = attr(`${_data}auto-track`) !== _false;
   const dnt = attr(`${_data}do-not-track`) === _true;
+  const excludeSearch = attr(`${_data}exclude-search`) === _true;
   const domain = attr(`${_data}domains`) || "";
   const credentials = attr(`${_data}fetch-credentials`) || "omit";
   const optOutFilters = attr(`${_data}opt-out-filters`) || undefined;
@@ -49,6 +50,7 @@
     if (!raw) return raw;
     try {
       const u = new URL(raw, location.href);
+      if (excludeSearch) u.search = "";
       return u.toString();
     } catch {
       return raw;
