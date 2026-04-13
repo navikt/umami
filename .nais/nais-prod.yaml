@@ -67,6 +67,6 @@ spec:
     port: 3000
   replicas:
     cpuThresholdPercentage: 50
-    max: 16
+    max: 20
     min: 2
   port: 3000
