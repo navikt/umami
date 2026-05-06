@@ -20,6 +20,7 @@ if (!fs.existsSync(outputDir)) {
 const scripts = [
   { input: "sporing.js", output: "sporing.js" },
   { input: "sporing-dev.js", output: "sporing-dev.js" },
+  { input: "sporing-reops.js", output: "sporing-reops.js" },
 ];
 
 console.log("Building tracker scripts...\n");
