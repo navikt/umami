@@ -171,6 +171,7 @@
         headers: {
           "Content-Type": "application/json",
           "X-Script-Version": VERSION,
+          ...(typeof cache !== "undefined" && { "x-umami-cache": cache }),
           ...(optOutFilters && { "x-opt-out-filters": optOutFilters }),
         },
         credentials,
@@ -179,6 +180,7 @@
       const data = await res.json();
       if (data) {
         disabled = !!data.disabled;
+        cache = data.cache;
       }
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (_e) {
@@ -207,6 +209,7 @@
       identity = id;
     }
 
+    cache = "";
     return send(
       {
         ...getPayload(),
@@ -230,6 +233,7 @@
 
   let initialized = false;
   let disabled = false;
+  let cache;
   let identity;
 
   if (autoTrack && !trackingDisabled()) {
