@@ -43,8 +43,9 @@
     hostUrl || "" || currentScript.src.split("/").slice(0, -1).join("/");
   const endpoint = `${host.replace(/\/$/, "")}/api/send`;
   const screen = `${width}x${height}`;
-  const eventRegex = /data-umami-event-([\w-_]+)/;
-  const eventNameAttribute = `${_data}umami-event`;
+  const eventRegex = /data-(?:sporing|umami)-event-([\w-_]+)/;
+  const eventNameAttribute = `${_data}sporing-event`;
+  const eventNameAttributeLegacy = `${_data}umami-event`;
   const delayDuration = 300;
 
   /* Helper functions */
@@ -105,7 +106,7 @@
 
   const handleClicks = () => {
     const trackElement = async (el) => {
-      const eventName = el.getAttribute(eventNameAttribute);
+      const eventName = el.getAttribute(eventNameAttribute) || el.getAttribute(eventNameAttributeLegacy);
       if (eventName) {
         const eventData = {};
 
@@ -123,7 +124,7 @@
       if (!parentElement) return trackElement(el);
 
       const { href, target } = parentElement;
-      if (!parentElement.getAttribute(eventNameAttribute)) return;
+      if (!parentElement.getAttribute(eventNameAttribute) && !parentElement.getAttribute(eventNameAttributeLegacy)) return;
 
       if (parentElement.tagName === "BUTTON") {
         return trackElement(parentElement);
@@ -151,6 +152,7 @@
   const trackingDisabled = () =>
     disabled ||
     !website ||
+    localStorage?.getItem("sporing.disabled") ||
     localStorage?.getItem("umami.disabled") ||
     (domain && !domains.includes(hostname)) ||
     (dnt && hasDoNotTrack());
@@ -224,11 +226,16 @@
 
   /* Start */
 
-  if (!window.umami) {
-    window.umami = {
+  if (!window.sporing) {
+    window.sporing = {
       track,
       identify,
     };
+  }
+
+  // Backwards compatibility
+  if (!window.umami) {
+    window.umami = window.sporing;
   }
 
   let currentUrl = normalize(href);
